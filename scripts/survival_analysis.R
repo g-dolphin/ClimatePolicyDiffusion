@@ -64,16 +64,15 @@ stargazer(df_allobs_cov,
 
 # ------------------------------------- MAIN MODEL ESTIMATIONS -------------------------------------------- #
 
-dataframes <- list(fit = "CPdiff_hz_fit_v2.csv", rps = "CPdiff_hz_rps_v2.csv", ets = "CPdiff_hz_ets_v2.csv", tax = "CPdiff_hz_tax_v2.csv",
-                   pricing = "CPdiff_hz_pricing_v2.csv", techno = "CPdiff_hz_techpol_v2.csv")
+dataframes <- list(fit = "CPdiff_hz_fit_v2.csv", rps = "CPdiff_hz_rps_v2.csv", techno = "CPdiff_hz_techpol_v2.csv",
+                   ets = "CPdiff_hz_ets_v2.csv", tax = "CPdiff_hz_tax_v2.csv", pricing = "CPdiff_hz_pricing_v2.csv")
 
 weibull <- list()
 exponential <- list()
 cox <- list()
-i = 1
 
 for (name in names(dataframes)) {
-  print(i)
+  print(name)
 
   df = read.csv(dataframes[[name]])
   
@@ -87,27 +86,26 @@ for (name in names(dataframes)) {
     #WEIBULL
     #Accessing with [[ or $ is similar. However, it differs for [ in that, indexing with [ will return us a data frame but the other two will reduce it into a vector.
     surv_wei <- Surv(df$Duration, df[[outcome[1]]])
-    weibull[[i]] <- phreg(surv_wei ~  policy_leakage_index + policy_comcol + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc,  
+    weibull[[name]] <- phreg(surv_wei ~  policy_leakage_index + policy_comcol + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc,  
                             data = df, 
-                            dist='weibull')#,
-                            #cluster = Country)
+                            dist='weibull')
     
     #The coefficient estimated by the survreg command are AFT coefficients - they need to be transformed into
     #PH model coefficients. https://www.rdocumentation.org/packages/SurvRegCensCov/versions/1.4/topics/ConvertWeibull
     #weibullph[[i]] <- ConvertWeibull(weibull[[i]], conf.level = 0.95)
     
     #EXPONENTIAL
-    exponential[[i]] <- phreg(surv_wei ~ policy_share + policy_leakage_index + policy_comcol + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc, 
+    exponential[[name]] <- phreg(surv_wei ~ policy_share + policy_leakage_index + policy_comcol + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc, 
                            data = df, 
                            dist='weibull',
                            shape = 1)
     
     #COX
     surv_cox <- Surv(df$start, df$stop, df[[outcome[1]]])
-    cox[[i]] <- coxph(surv_cox ~ policy_leakage_index + policy_comcol + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc,
+    cox[[name]] <- coxph(surv_cox ~ policy_leakage_index + policy_comcol + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc,
                       ties = "breslow",
                       data = df, 
-                      cluster = Country)# there is a problem when using the 'avg' variable
+                      cluster = Country)
   }
   
   else if (name %in% list("tax", "ets", "pricing")) {
@@ -115,27 +113,26 @@ for (name in names(dataframes)) {
     #WEIBULL
     #Accessing with [[ or $ is similar. However, it differs for [ in that, indexing with [ will return us a data frame but the other two will reduce it into a vector.
     surv_wei <- Surv(df$Duration, df[[outcome[1]]])
-    weibull[[i]] <- phreg(surv_wei ~  policy_leakage_index + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc,  
+    weibull[[name]] <- phreg(surv_wei ~  policy_leakage_index + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc,  
                           data = df, 
-                          dist='weibull')#,
-                          #cluster = Country)
+                          dist='weibull')
     
     #The coefficient estimated by the survreg command are AFT coefficients - they need to be transformed into
     #PH model coefficients. https://www.rdocumentation.org/packages/SurvRegCensCov/versions/1.4/topics/ConvertWeibull
     #weibullph[[i]] <- ConvertWeibull(weibull[[i]], conf.level = 0.95)
     
     #EXPONENTIAL
-    exponential[[i]] <- phreg(surv_wei ~ policy_share + policy_leakage_index + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc, 
+    exponential[[name]] <- phreg(surv_wei ~ policy_share + policy_leakage_index + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc, 
                               data = df, 
                               dist='weibull',
                               shape = 1)
     
     #COX
     surv_cox <- Surv(df$start, df$stop, df[[outcome[1]]])
-    cox[[i]] <- coxph(surv_cox ~ policy_leakage_index + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc,
+    cox[[name]] <- coxph(surv_cox ~ policy_leakage_index + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc,
                       ties = "breslow",
                       data = df, 
-                      cluster = Country)# there is a problem when using the 'avg' variable
+                      cluster = Country)
     
   }
   
@@ -151,20 +148,20 @@ for (name in names(dataframes)) {
 #  coxplot <- ggforest(cox[[i]], data = df, main = paste("Forest plot ", "test") )
 #  ggsave(paste("cox_main_", name), coxplot, path = "/Users/GD/Documents/Activities/Work/Research//Users/GD/Documents/Activities/Work/Research/Research_projects/2020/Climate_policy_diffusion/Manuscript/Tex_file/Figures/")
   
-  i = i+1
 }
 
 # Output table - latex
 # https://www.jakeruss.com/cheatsheets/stargazer/
 # Note: Weibull with cluster option causes trouble for stargazer function...
 
-stargazer(cox[1], cox[2], cox[3], cox[4], weibull[1], weibull[2], weibull[3], weibull[4], exponential[1], exponential[2], exponential[3], exponential[4],
+stargazer(cox["fit"], cox["rps"], cox["ets"], cox["tax"], weibull["fit"], weibull["rps"], weibull["ets"], weibull["tax"], 
+          exponential["fit"], exponential["rps"], exponential["ets"], exponential["tax"],
           type = "latex", out = "/Users/gd/OneDrive - rff/Documents/Research/projects/climate_policy_diffusion/manuscript/Tex_file/tables/results_v2.tex",
           style = "aer", intercept.bottom = TRUE, font.size = "tiny", label = "resultsmain",
           #single.row = TRUE,
           no.space = TRUE,
           column.sep.width = "1pt",
-          covariate.labels = c("Free riding (mean global policy)", "Leakage", 
+          covariate.labels = c("Free riding", "Leakage", 
                                "Cultural sim. - colon.", "Cultural sim. - com. lang", "Cultural sim - religion", 
                                "Communication - official", "Communication - private", 
                                "Local knowledge stock (KS)",  "Local KS x import share",
@@ -173,7 +170,25 @@ stargazer(cox[1], cox[2], cox[3], cox[4], weibull[1], weibull[2], weibull[3], we
           model.names            = TRUE,
           dep.var.labels.include = TRUE,
           dep.var.labels   = c("Cox", "Weibull", "Exponential"),
-          column.labels = c("FiT", "RPS", "Techpol", "Tax", "FiT", "RPS","Techpol", "Tax", "FiT", "RPS","Techpol", "Tax"),
+          column.labels = c("FiT", "RPS", "ETS", "Tax", "FiT", "RPS","ETS", "Tax", "FiT", "RPS","ETS", "Tax"),
+          title = "Estimation results") #, float.env = "sidewaystable"
+
+stargazer(cox["techno"], cox["pricing"], weibull["techno"], weibull["pricing"], exponential["techno"], exponential["pricing"],
+          type = "latex", out = "/Users/gd/OneDrive - rff/Documents/Research/projects/climate_policy_diffusion/manuscript/Tex_file/tables/results_aggpol_v2.tex",
+          style = "aer", intercept.bottom = TRUE, font.size = "tiny", label = "resultsmain",
+          #single.row = TRUE,
+          no.space = TRUE,
+          column.sep.width = "1pt",
+          covariate.labels = c("Free riding", "Leakage", 
+                               "Cultural sim. - colon.", "Cultural sim. - com. lang", "Cultural sim - religion", 
+                               "Communication - official", "Communication - private", 
+                               "Local knowledge stock (KS)",  "Local KS x import share",
+                               "$\\%$ elec. from fossil fuel", "GDP per capita", "Electoral dem. index", "Constant"), 
+          model.numbers          = FALSE,
+          model.names            = TRUE,
+          dep.var.labels.include = TRUE,
+          dep.var.labels   = c("Cox", "Weibull", "Exponential"),
+          column.labels = c("All energy policies", "All pricing mechanisms", "All energy policies", "All pricing mechanisms", "All energy policies", "All pricing mechanisms"),
           title = "Estimation results") #, float.env = "sidewaystable"
 
 # Additionally, one could report
@@ -202,44 +217,42 @@ stargazer(cox[1], cox[2], cox[3], cox[4], weibull[1], weibull[2], weibull[3], we
 
 cox_rc <- list()
 
-i = 1
-
 for (name in names(dataframes)) {
-  print(i)
+  print(name)
   
   df = read.csv(dataframes[[name]])
   
   df$start = df$Duration - 1
   df$stop = df$Duration
 
-  outcome <- names(select(df, ends_with("dummy")))
+  outcome <- names(select(df, "policy_"))
 
   surv_wei <- Surv(df$Duration, df[[outcome[1]]])
   surv_cox <- Surv(df$start, df$stop, df[[outcome[1]]])
 
   
-  if (name %in% c("fit", "rps", "ets")) {
+  if (name %in% c("fit", "rps", "techno")) {
     #EU 
-    try(cox_rc[[i]] <- coxph(surv_cox ~  policy_imp + policy_comcol + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + patents_ds_eu + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc, 
+    try(cox_rc[[paste(name,"_eu", sep="")]] <- coxph(surv_cox ~  policy_leakage_index + policy_comcol + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + patents_ds_eu + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc, 
                               data = df, 
                               ties = 'breslow',
                               cluster = Country))
     
   
     #Disembodied knowledge 
-    try(cox_rc[[i+1]] <- coxph(surv_cox ~  policy_imp + policy_comcol + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + patents_ds_exp + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc, 
+    try(cox_rc[[paste(name,"_dk", sep="")]] <- coxph(surv_cox ~  policy_leakage_index + policy_comcol + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + patents_ds_exp + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc, 
                                data = df, 
                                ties = 'breslow',
                                cluster = Country))
   
     #Global knowledge stock 
-    try(cox_rc[[i+2]] <- coxph(surv_cox ~  policy_imp + policy_comcol + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + patents_ds_global + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc, 
+    try(cox_rc[[paste(name,"_gk", sep="")]] <- coxph(surv_cox ~  policy_leakage_index + policy_comcol + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + patents_ds_global + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc, 
                                data = df, 
                                ties = 'breslow',
                                cluster = Country))
   
     #Technology supply 
-    try(cox_rc[[i+3]] <- coxph(surv_cox ~  policy_imp + policy_comcol + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + capacity_ds_global + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc, 
+    try(cox_rc[[paste(name,"_ts", sep="")]] <- coxph(surv_cox ~  policy_leakage_index + policy_comcol + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + capacity_ds_global + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc, 
                                data = df, 
                                ties = 'breslow',
                                cluster = Country))
@@ -252,47 +265,64 @@ for (name in names(dataframes)) {
     #                         cluster = Country))
     
     #Colonial relationship post 1945
-    try(cox_rc[[i+4]] <- coxph(surv_cox ~  policy_imp + policy_comcol + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + policy_col45 + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc, 
+    try(cox_rc[[paste(name,"_col45", sep="")]] <- coxph(surv_cox ~  policy_leakage_index + policy_comcol + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + policy_col45 + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc, 
                              data = df, 
                              ties = 'breslow',
                              cluster = Country))
+    
+    #Domestic knowledge stock
+    try(cox_rc[[paste(name,"_doms", sep="")]] <- coxph(surv_cox ~  policy_leakage_index + policy_comcol + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + patents_ds + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc, 
+                               data = df, 
+                               ties = 'breslow',
+                               cluster = Country))
     
   }
   
-  if (name %in% c("tax")) {
+  if (name %in% c("tax", "ets", "pricing")) {
     #EU 
-    try(cox_rc[[i]] <- coxph(surv_cox ~  policy_imp + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + patents_ds_eu + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc, 
+    try(cox_rc[[paste(name,"_eu", sep="")]] <- coxph(surv_cox ~  policy_leakage_index + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + patents_ds_eu + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc, 
                              data = df, 
                              ties = 'breslow',
                              cluster = Country))
     
-    
     #Disembodied knowledge 
-    try(cox_rc[[i+1]] <- coxph(surv_cox ~  policy_imp + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + patents_ds_exp + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc, 
+    try(cox_rc[[paste(name,"_dk", sep="")]] <- coxph(surv_cox ~  policy_leakage_index + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + patents_ds_exp + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc, 
                                data = df, 
                                ties = 'breslow',
                                cluster = Country))
     
     #Global knowledge stock 
-    try(cox_rc[[i+2]] <- coxph(surv_cox ~  policy_imp + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + patents_ds_global + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc, 
+    try(cox_rc[[paste(name,"_gk", sep="")]] <- coxph(surv_cox ~  policy_leakage_index + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + patents_ds_global + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc, 
                                data = df, 
                                ties = 'breslow',
                                cluster = Country))
     
     #Technology supply 
-    try(cox_rc[[i+3]] <- coxph(surv_cox ~  policy_imp + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + capacity_ds_global + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc, 
+    try(cox_rc[[paste(name,"_ts", sep="")]] <- coxph(surv_cox ~  policy_leakage_index + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + capacity_ds_global + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc, 
                                data = df, 
                                ties = 'breslow',
                                cluster = Country))
+
+    #Colonial relationship post 1945
+#    try(cox_rc[[paste(name,"_col45")]] <- coxph(surv_cox ~  policy_leakage_index + policy_comcol + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + policy_col45 + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc, 
+#                                                data = df, 
+#                                                ties = 'breslow',
+#                                                cluster = Country))
+    
+    #Domestic knowledge stock
+    try(cox_rc[[paste(name,"_doms", sep="")]] <- coxph(surv_cox ~  policy_leakage_index + policy_comcol + policy_comlang_off + policy_comrelig + policy_fta_hmr + policy_impexp + patents_ds_imp + patents_ds_imp_imp + patents_ds + ff_perc_tot_sc + gdp_pc_ppp_sc + v2x_polyarchy_sc, 
+                                               data = df, 
+                                               ties = 'breslow',
+                                               cluster = Country))
     
   }
 
-    i = i+5
   }
 
 # Output table - latex
-stargazer(cox_rc[1], cox_rc[2], cox_rc[3], cox_rc[4], cox_rc[5], cox_rc[6], cox_rc[7], cox_rc[8], cox_rc[9], cox_rc[10],
-          type = "latex", out = "/Users/GD/Documents/Activities/Work/Research/Research_projects/2020/Climate_policy_diffusion/Manuscript/Tex_file/Tables/results_rcI.tex",
+stargazer(cox_rc["fit_eu"], cox_rc["fit_dk"], cox_rc["fit_gk"], cox_rc["fit_ts"], cox_rc["fit_col45"], cox_rc["fit_doms"], 
+          cox_rc["rps_eu"], cox_rc["rps_dk"], cox_rc["rps_gk"], cox_rc["rps_ts"], cox_rc["rps_col45"], cox_rc["rps_doms"],
+          type = "latex", out = "/Users/gd/OneDrive - rff/Documents/Research/projects/climate_policy_diffusion/manuscript/Tex_file/tables/results_rcI_v2.tex",
           style = "aer", intercept.bottom = TRUE, font.size = "tiny", label = "resultsrcI",
           #single.row = TRUE,
           no.space = TRUE,
@@ -302,16 +332,17 @@ stargazer(cox_rc[1], cox_rc[2], cox_rc[3], cox_rc[4], cox_rc[5], cox_rc[6], cox_
                                "Communication - official", "Communication - private",  
                                "Local knowledge stock (KS)", "Local KS x import share",
                                "Knowledge stock EU", "Disembodied knowledge",
-                               "Global foreign KS", "Global renewables cap.", "Peer pressure - colonizer",
+                               "Global foreign KS", "Global renewables cap.", "Peer pressure - colonizer", "Domestic KS",
                                "$\\%$ elec. from fossil fuel", "GDP per capita", "Electoral dem. index", "Constant"), 
           model.numbers          = FALSE,
           model.names            = TRUE,
           dep.var.labels.include = FALSE,
-          column.labels = c("SM", "DK", "Glob.", "Tech. Dep.", "Colonizer", "SM", "DK", "Glob.", "Tech. Dep.", "Colonizer"),
+          column.labels = c("SM", "DK", "Glob.", "Tech. Dep.", "Colonizer", "Dom.", "SM", "DK", "Glob.", "Tech. Dep.", "Colonizer", "Dom."),
           title = "Robustness checks - FiT $\\&$ RPS") #, float.env = "sidewaystable"
 
-stargazer(cox_rc[11], cox_rc[12], cox_rc[13], cox_rc[14], cox_rc[15], cox_rc[16], cox_rc[17], cox_rc[18], cox_rc[19],
-          type = "latex", out = "/Users/GD/Documents/Activities/Work/Research/Research_projects/2020/Climate_policy_diffusion/Manuscript/Tex_file/Tables/results_rcII.tex",
+stargazer(cox_rc["ets_eu"], cox_rc["ets_dk"], cox_rc["ets_gk"], cox_rc["ets_ts"], cox_rc["ets_doms"], 
+          cox_rc["tax_eu"], cox_rc["tax_dk"], cox_rc["tax_gk"], cox_rc["tax_ts"], cox_rc["tax_doms"],
+          type = "latex", out = "/Users/gd/OneDrive - rff/Documents/Research/projects/climate_policy_diffusion/manuscript/Tex_file/tables/results_rcII_v2.tex",
           style = "aer", intercept.bottom = TRUE, font.size = "tiny", label = "resultsrcII",
           #single.row = TRUE,
           no.space = TRUE,
@@ -320,13 +351,32 @@ stargazer(cox_rc[11], cox_rc[12], cox_rc[13], cox_rc[14], cox_rc[15], cox_rc[16]
                                "Cultural sim. - colon.", "Cultural sim. - language", "Cultural sim. - relig.", 
                                "Communication - official", "Communication - private",  
                                "Local knowledge stock (KS)", "Local KS x import share", "Patent stock EU", "Disembodied KS",
-                               "Global foreign KS", "Global renewables cap.", "Peer pressure - colonizer",
+                               "Global foreign KS", "Global renewables cap.", "Domestic KS", #"Peer pressure - colonizer",
                                "$\\%$ elec. from fossil fuel", "GDP per capita", "Electoral dem. index", "Constant"), 
           model.numbers          = FALSE,
           model.names            = TRUE,
           dep.var.labels.include = FALSE,
-          column.labels = c("SM", "DK", "Glob.", "Tech. Dep.", "Colonizer", "SM", "DK", "Glob.", "Tech. Dep."),
+          column.labels = c("SM", "DK", "Glob.", "Tech. Dep.", "Dom.", "SM", "DK", "Glob.", "Tech. Dep.", "Dom."),
           title = "Robustness checks - ETS $\\&$ Tax") #, float.env = "sidewaystable"
+
+stargazer(cox_rc["techno_eu"], cox_rc["techno_dk"], cox_rc["techno_gk"], cox_rc["techno_ts"], cox_rc["techno_doms"], 
+          cox_rc["pricing_eu"], cox_rc["pricing_dk"], cox_rc["pricing_gk"], cox_rc["pricing_ts"], cox_rc["pricing_doms"],
+          type = "latex", out = "/Users/gd/OneDrive - rff/Documents/Research/projects/climate_policy_diffusion/manuscript/Tex_file/tables/results_rcIII_v2.tex",
+          style = "aer", intercept.bottom = TRUE, font.size = "tiny", label = "resultsrcII",
+          #single.row = TRUE,
+          no.space = TRUE,
+          column.sep.width = "1pt",
+          covariate.labels = c("Leakage", 
+                               "Cultural sim. - colon.", "Cultural sim. - language", "Cultural sim. - relig.", 
+                               "Communication - official", "Communication - private",  
+                               "Local knowledge stock (KS)", "Local KS x import share", "Patent stock EU", "Disembodied KS",
+                               "Global foreign KS", "Global renewables cap.", "Domestic KS", #"Peer pressure - colonizer",
+                               "$\\%$ elec. from fossil fuel", "GDP per capita", "Electoral dem. index", "Constant"), 
+          model.numbers          = FALSE,
+          model.names            = TRUE,
+          dep.var.labels.include = FALSE,
+          column.labels = c("SM", "DK", "Glob.", "Tech. Dep.", "Dom.", "SM", "DK", "Glob.", "Tech. Dep.", "Dom."),
+          title = "Robustness checks - All energy policies $\\&$ All pricing policies") #, float.env = "sidewaystable"
 
 # Non-innovating countries
 

@@ -20,7 +20,7 @@ pd.set_option('display.width', 140)
 
 path_root = "/Users/GD/OneDrive - rff/Documents/Research/projects/climate_policy_diffusion"
 
-db = pd.read_csv(path_root+"/data/dataset/CPdiff_datasetII.csv")
+db = pd.read_csv(path_root+"/data/dataset/CPdiff_dataset_v2.csv")
 countries_oecd = ['Sweden', 'United Kingdom', 'Finland','Slovenia', 'Norway', 'Switzerland',
                   'Denmark', 'New Zealand', 'United States', 'Canada']
 countries_noecd = ['China', 'South Africa', 'Brazil', 'Russia', 'Philippines',
@@ -68,9 +68,8 @@ plt.savefig(path_root+"/Manuscript/Tex_file/Figures/description/adoption_scatter
 
 #Adoption and survival - time series
 
-
-survival = db[["Country", "Year", "Tax_dummy", "ETS_dummy", "FiT_dummy", 
-               "RPS_dummy", "Pricing_dummy", "Tech_dummy"]]
+survival = db[["Country", "Year", "tax", "ets", "fit", 
+               "rps", "pricing", "techpol"]]
 
 survival = survival.groupby(["Year"]).sum()/len(survival.loc[survival.Year==2016,:])
 
@@ -82,52 +81,55 @@ for col in survival.columns:
 
 markers = ['d','3','>','<', '+', '*']
 
-fig = plt.figure(figsize=(20,12))
+fig = plt.figure(figsize=(24,14))
 
 fig.patch.set_alpha(0.0)
 i = 0
 
 ax1 = fig.add_subplot(121)
 
-for dummy in ["Tax_dummy", "ETS_dummy", "FiT_dummy", "RPS_dummy", "Pricing_dummy", "Tech_dummy"]:
+for dummy in ["tax", "ets", "fit", "rps", "pricing", "techpol"]:
     #ax1.plot(cum_count.index, cum_count[dummy], label=labels[i], color=colors[i])
     ax1.plot(survival.index, survival[dummy], label=labels[i], color=colors[i], marker=markers[i])
     i += 1
 
-ax1.set_ylabel("% of countries with policy", fontsize=24)
-ax1.tick_params(axis="x", labelsize=20)
-ax1.tick_params(axis="y", labelsize=20)
+ax1.set_ylabel("% of countries with policy", fontsize=28)
+ax1.tick_params(axis="x", labelsize=24)
+ax1.tick_params(axis="y", labelsize=24)
 ax1.set_xlim([1990, 2016])
 ax1.set_ylim(0, 1.01)
 
 ax2 = fig.add_subplot(122)
 i=0
 
-for dummy in ["Tax_dummy_surv", "ETS_dummy_surv", "FiT_dummy_surv", "RPS_dummy_surv", "Pricing_dummy_surv", "Tech_dummy_surv"]:
+for dummy in ["tax_surv", "ets_surv", "fit_surv", "rps_surv", "pricing_surv", "techpol_surv"]:
     ax2.plot(survival.index, survival[dummy], label=labels[i], color=colors[i], marker=markers[i])
     i += 1
 
-ax2.set_ylabel("% of countries without policy", fontsize=24)
-ax2.tick_params(axis="x", labelsize=20)
-ax2.tick_params(axis="y", labelsize=20)
+ax2.set_ylabel("% of countries without policy", fontsize=28)
+ax2.tick_params(axis="x", labelsize=24)
+ax2.tick_params(axis="y", labelsize=24)
 ax2.set_xlim([1990, 2016])
 ax2.set_ylim(0,1.01)
 
-ax1.legend(labels=["carbon tax", "emissions trading", "FiT", "RPS", "all pricing", "all tech. pol."],
-           ncol=4, loc="lower center", bbox_to_anchor=(1.1, -0.2),
-           fontsize=24)
+ax1.legend(labels=["carbon tax", "emissions trading", "FiT", "RPS", 
+                   "all pricing mechanisms", "all energy policies"],
+           ncol=3, loc="lower center", bbox_to_anchor=(1.1, -0.2),
+           fontsize=28)
 
 plt.savefig(path_root+"/Manuscript/Tex_file/Figures/description/AdoptionIII.pdf")
 plt.close()
 
 
-# Diffusion regressor: stringency
+# Diffusion regressor: leakage index 
 
-titles = ["Tax", "ETS", "FiT", "RPS", "Pricing", "Tech. pol."]
+titles = ["Carbon tax", "Emissions trading", "FiT", "RPS", 
+          "All pricing mechanisms", "All energy policies"]
 figname = ["oecd", "noecd"]
 
-
 def diffusion_visuals(features, category):
+    
+    y_labels = {"stringency":"% of total imports", "leakage":"Leakage risk index"}
     
     m = 0
     
@@ -152,7 +154,7 @@ def diffusion_visuals(features, category):
                 k += 1
                 
             axs[i, j].set_title(titles[l], fontsize=24)
-            axs[i, j].set_ylabel("% of total imports", fontsize=20)
+            axs[i, j].set_ylabel(y_labels[category], fontsize=20)
             axs[i, j].tick_params(axis="x", labelsize=18)
             axs[i, j].tick_params(axis="y", labelsize=18)
             plt.xlim([1990,2016])
@@ -173,16 +175,16 @@ def diffusion_visuals(features, category):
                fontsize=20,
                )
         
-        plt.savefig(path_root+"/Manuscript/Tex_file/Figures/"+category+"_"+figname[m]+"II.pdf")
+        plt.savefig(path_root+"/manuscript/Tex_file/figures/"+category+"_"+figname[m]+"II.pdf")
         m +=1 
 
 diffusion_visuals(["tax_imp", "ets_imp", "fit_imp", "rps_imp", "pricing_imp", "techpol_imp"], "stringency")
 
-# Diffusion: leakage
-
 diffusion_visuals(['tax_leakage_index', 'ets_leakage_index', 'fit_leakage_index',
                    'rps_leakage_index', 'pricing_leakage_index', 'techpol_leakage_index'], 
                   "leakage")
+
+
 
 # Diffusion regressors: technology
 
@@ -231,21 +233,17 @@ for feature in ['patents_ds_imp', 'patents_ds_exp', 'capacity_ws_ds_imp', 'capac
 
 # Diffusion regressors: communication
 
-titles = ["Carbon tax", "Emissions trading", "FiT", 
-          "RPS"]
-figname = ["oecd", "noecd"]
-
 m = 0
 
 for countries in [countries_oecd, countries_noecd]:
     
-    fig, axs = plt.subplots(2, 2, sharex=True, sharey=True, figsize=(18, 14))
+    fig, axs = plt.subplots(3, 2, sharex=True, sharey=True, figsize=(18, 18))
     
     i = 0
     j = 0
     l = 0
 
-    for feature in ['Tax_impexp', 'ETS_impexp', 'FiT_impexp', 'RPS_impexp']:
+    for feature in ['tax_impexp', 'ets_impexp', 'fit_impexp', 'rps_impexp', 'pricing_impexp', 'techpol_impexp']:
         temp = db.loc[:, ["Country", "Year", feature]]
         
         k = 0
@@ -276,7 +274,7 @@ for countries in [countries_oecd, countries_noecd]:
                fontsize=20,
                ncol=5)
     
-    plt.savefig(path_root+"/Manuscript/Tex_file/Figures/description/diffusion_com_"+figname[m]+".pdf")
+    plt.savefig(path_root+"/manuscript/Tex_file/figures/description/diffusion_com_"+figname[m]+"_v2.pdf")
     m +=1 
 
 
