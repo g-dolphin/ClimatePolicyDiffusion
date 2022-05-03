@@ -34,7 +34,7 @@ colors_ctry_noecd = ['lightseagreen', 'darkslategray', 'darkkhaki',
                      'olivedrab', 'tan', 'royalblue', 'seagreen']
 colors_ctry = [colors_ctry_oecd, colors_ctry_noecd]
 
-labels = ["carbon taxes", "emissions trading", "FiTs", "RPS", "all pricing mechanisms", "all tech. pol."]
+labels = ["carbon taxes", "emissions trading", "FiT", "RPS", "all pricing mechanisms", "all tech. pol."]
 colors = ['lightseagreen', 'teal', "indianred", "brown", 'darkkhaki', 'dodgerblue']
 
 ## GDP per cap vs Adoption
@@ -45,15 +45,19 @@ i = 0
 j = 0
 k = 0
 
-for dummy in ["Tax_dummy", "ETS_dummy", "FiT_dummy", "RPS_dummy"]:
+for dummy in ["tax", "ets", "fit", "rps"]:
     plots_db = db.loc[db[dummy]==1, :]
     plots_db = plots_db.drop_duplicates(["Country", dummy])
     axs[i, j].scatter(plots_db.Year, plots_db.gdp_pc_ppp, color=colors[k])
     
-    axs[i, j].set_title("GDP per cap. PPP x Year - "+labels[k], fontsize=22)
+    axs[i, j].set_title(r"GDP per cap. PPP $\times$ Year - "+labels[k], fontsize=22)
     axs[i, j].set_ylabel("USD", fontsize=18)
     axs[i, j].tick_params(axis="x", labelsize=18)
     axs[i, j].tick_params(axis="y", labelsize=18)
+    
+    axs[i, j].get_yaxis().set_major_formatter(
+        mpl.ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+
     
     if j == 0:
         j += 1
@@ -135,7 +139,7 @@ def diffusion_visuals(features, category):
     
     for countries in [countries_oecd, countries_noecd]:
         
-        fig, axs = plt.subplots(3, 2, sharex=True, sharey=True, figsize=(18, 18))
+        fig, axs = plt.subplots(2, 2, sharex=True, sharey=True, figsize=(18, 18))
         
         i = 0
         j = 0
@@ -178,17 +182,21 @@ def diffusion_visuals(features, category):
         plt.savefig(path_root+"/manuscript/Tex_file/figures/"+category+"_"+figname[m]+"II.pdf")
         m +=1 
 
-diffusion_visuals(["tax_imp", "ets_imp", "fit_imp", "rps_imp", "pricing_imp", "techpol_imp"], "stringency")
+#diffusion_visuals(["tax_imp", "ets_imp", "fit_imp", "rps_imp", "pricing_imp", "techpol_imp"], "stringency")
+diffusion_visuals(["tax_imp", "ets_imp", "fit_imp", "rps_imp"], "stringency")
+
+#diffusion_visuals(['tax_leakage_index', 'ets_leakage_index', 'fit_leakage_index',
+#                   'rps_leakage_index', 'pricing_leakage_index', 'techpol_leakage_index'], 
+#                  "leakage")
 
 diffusion_visuals(['tax_leakage_index', 'ets_leakage_index', 'fit_leakage_index',
-                   'rps_leakage_index', 'pricing_leakage_index', 'techpol_leakage_index'], 
-                  "leakage")
+                   'rps_leakage_index'], "leakage")
 
 
 
 # Diffusion regressors: technology
 
-titles = ["OECD", "non OECD"]          
+titles = ["OECD", "Non-OECD"]          
 figname = ["oecd", "noecd"]
 
 fig_xlabels = {'patents_ds_imp':'number of patents (x 100)', 'patents_ds_exp':'number of patents (x 100)',
@@ -237,13 +245,13 @@ m = 0
 
 for countries in [countries_oecd, countries_noecd]:
     
-    fig, axs = plt.subplots(3, 2, sharex=True, sharey=True, figsize=(18, 18))
+    fig, axs = plt.subplots(2, 2, sharex=True, sharey=True, figsize=(18, 18))
     
     i = 0
     j = 0
     l = 0
 
-    for feature in ['tax_impexp', 'ets_impexp', 'fit_impexp', 'rps_impexp', 'pricing_impexp', 'techpol_impexp']:
+    for feature in ['tax_impexp', 'ets_impexp', 'fit_impexp', 'rps_impexp']: #, 'pricing_impexp', 'techpol_impexp'
         temp = db.loc[:, ["Country", "Year", feature]]
         
         k = 0
