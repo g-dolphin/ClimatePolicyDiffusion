@@ -18,9 +18,10 @@ mpl.rcParams['font.size'] = 12
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', 140)
 
-path_root = "/Users/GD/OneDrive - rff/Documents/Research/projects/climate_policy_diffusion"
+path_github = "/Users/gd/GitHub/ClimatePolicyDiffusion/_dataset"
+path_onedrive = "/Users/gd/OneDrive - rff/Documents/Research/projects/climate_policy_adoption/cp_diffusion"
 
-db = pd.read_csv(path_root+"/data/dataset/CPdiff_dataset_v2.csv")
+db = pd.read_csv(path_github+"/CPdiff_dataset_v2.csv")
 countries_oecd = ['Sweden', 'United Kingdom', 'Finland','Slovenia', 'Norway', 'Switzerland',
                   'Denmark', 'New Zealand', 'United States', 'Canada']
 countries_noecd = ['China', 'South Africa', 'Brazil', 'Russia', 'Philippines',
@@ -67,7 +68,7 @@ for dummy in ["tax", "ets", "fit", "rps"]:
 
     k += 1
 
-plt.savefig(path_root+"/Manuscript/Tex_file/Figures/description/adoption_scatterII.pdf")
+plt.savefig(path_root+"/manuscript/Tex/figures/description/adoption_scatterII.pdf")
 
 
 #Adoption and survival - time series
@@ -121,9 +122,38 @@ ax1.legend(labels=["carbon tax", "emissions trading", "FiT", "RPS",
            ncol=3, loc="lower center", bbox_to_anchor=(1.1, -0.2),
            fontsize=28)
 
-plt.savefig(path_root+"/Manuscript/Tex_file/Figures/description/AdoptionIII.pdf")
+plt.savefig(path_onedrive+"/manuscript/Tex/figures/description/AdoptionIII.pdf")
 plt.close()
 
+## Single plot
+
+markers = ['d','3','>','<', '+', '*']
+
+fig = plt.figure(figsize=(24,14))
+
+fig.patch.set_alpha(0.0)
+i = 0
+
+for dummy in ["tax", "ets", "fit", "rps", "pricing", "techpol"]:
+    #ax1.plot(cum_count.index, cum_count[dummy], label=labels[i], color=colors[i])
+    plt.plot(survival.index, survival[dummy], label=labels[i], color=colors[i], marker=markers[i])
+    i += 1
+
+plt.ylabel("% of countries with policy", fontsize=28)
+plt.tick_params(axis="x", labelsize=24)
+plt.tick_params(axis="y", labelsize=24)
+plt.xlim([1990, 2016])
+plt.ylim(0, 1.01)
+
+plt.legend(labels=["carbon tax", "emissions trading", "FiT", "RPS", 
+                   "all pricing mechanisms", "all energy policies"],
+           ncol=3, loc="lower center", bbox_to_anchor=(0.5, -0.2),
+           fontsize=28)
+
+plt.tight_layout()
+
+plt.savefig(path_onedrive+"/manuscript/Tex/figures/description/Adoption_single.pdf")
+plt.close()
 
 # Diffusion regressor: leakage index 
 
@@ -217,7 +247,8 @@ for feature in ['patents_ds_imp', 'patents_ds_exp', 'capacity_ws_ds_imp', 'capac
         
         for ctry in countries:
             temp_ctry = temp.loc[temp.Country==ctry, :]
-            axs[i].plot(temp_ctry.Year, temp_ctry[feature], color=colors_ctry[l][k], marker=markers_ctry[k], linestyle=lines_ctry[k], label=ctry)
+            axs[i].plot(temp_ctry.Year, temp_ctry[feature], color=colors_ctry[l][k], marker=markers_ctry[k], 
+                        linestyle=lines_ctry[k], label=ctry)
         
             k += 1
         
