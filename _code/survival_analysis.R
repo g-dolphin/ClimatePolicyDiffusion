@@ -33,6 +33,7 @@ df_allobs_cov <- subset(df_allobs, select = -c(Country, Year,
                                                patents_ds, Duration, exports, co2_tot, co2_pc,
                                                pop_tot, v2x_libdem, co2_int, innovator,
                                                gdp_pc_ppp_sc, pop_tot_sc, ff_perc_tot_sc, co2_int_sc, v2x_polyarchy_sc))
+                                               # TO ADD: co2_int_gdp, exp_perc_wexp
 
 df_allobs_cov <- select(df_allobs_cov, !ends_with(c("_fta_wto", "_contig", "_ODA", "_col45")))
 
@@ -52,6 +53,8 @@ stargazer(df_allobs_cov,
                                "Free riding - Tax", "Free riding - ETS", "Free riding - FiT", "Free riding - RPS", "Free riding - All pricing", "Free riding - All techno.",
                                "$\\%$ elec. from fossil fuels$\ ^*$", "$\\%$ elec. ff. x CO2 intensity$\ ^*$",
                                "Import shares", "GDP per capita (PPP, 2017 constant USD)$\ ^*$", "Electoral democracy index$\ ^*$"),
+                               # TO ADD: "CO2 intensity of GDP", "Share of world carbon-intensive exports"
+          
           style = "aer",
           font.size = "footnotesize",
           summary.stat = c("n", "min", "median", "max", "sd"),
@@ -63,6 +66,8 @@ stargazer(df_allobs_cov,
 
 
 # ------------------------------------- MAIN MODEL ESTIMATIONS -------------------------------------------- #
+# TO ADD to all regressions: co2 intensity of GDP, share of world exports of carbon intensive goods
+
 
 dataframes <- list(fit = "CPdiff_hz_fit_v2.csv", rps = "CPdiff_hz_rps_v2.csv", techno = "CPdiff_hz_techpol_v2.csv",
                    ets = "CPdiff_hz_ets_v2.csv", tax = "CPdiff_hz_tax_v2.csv", pricing = "CPdiff_hz_pricing_v2.csv")
