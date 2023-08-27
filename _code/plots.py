@@ -18,10 +18,10 @@ mpl.rcParams['font.size'] = 12
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', 140)
 
-path_github = "/Users/gd/GitHub/ClimatePolicyDiffusion/_dataset"
+path_github = "/Users/gd/GitHub/ClimatePolicyDiffusion"
 path_onedrive = "/Users/gd/OneDrive - rff/Documents/Research/projects/climate_policy_adoption/cp_diffusion"
 
-db = pd.read_csv(path_github+"/CPdiff_dataset_v2.csv")
+db = pd.read_csv(path_github+"/_dataset/CPdiff_dataset_v4.csv")
 countries_oecd = ['Sweden', 'United Kingdom', 'Finland','Slovenia', 'Norway', 'Switzerland',
                   'Denmark', 'New Zealand', 'United States', 'Canada']
 countries_noecd = ['China', 'South Africa', 'Brazil', 'Russia', 'Philippines',
@@ -35,7 +35,7 @@ colors_ctry_noecd = ['lightseagreen', 'darkslategray', 'darkkhaki',
                      'olivedrab', 'tan', 'royalblue', 'seagreen']
 colors_ctry = [colors_ctry_oecd, colors_ctry_noecd]
 
-labels = ["carbon taxes", "emissions trading", "FiT", "RPS", "all pricing mechanisms", "all tech. pol."]
+labels = ["Carbon tax", "Emissions trading", "FiT", "RPS", "All pricing mechanisms", "All tech. pol."]
 colors = ['lightseagreen', 'teal', "indianred", "brown", 'darkkhaki', 'dodgerblue']
 
 ## GDP per cap vs Adoption
@@ -49,10 +49,10 @@ k = 0
 for dummy in ["tax", "ets", "fit", "rps"]:
     plots_db = db.loc[db[dummy]==1, :]
     plots_db = plots_db.drop_duplicates(["Country", dummy])
-    axs[i, j].scatter(plots_db.Year, plots_db.gdp_pc_ppp, color=colors[k])
+    axs[i, j].scatter(plots_db.year, plots_db.gdp_pc_ppp, color=colors[k])
     
-    axs[i, j].set_title(r"GDP per cap. PPP $\times$ Year - "+labels[k], fontsize=22)
-    axs[i, j].set_ylabel("USD", fontsize=18)
+    axs[i, j].set_title(labels[k], fontsize=26)
+    axs[i, j].set_ylabel("2017 ppp USD", fontsize=20)
     axs[i, j].tick_params(axis="x", labelsize=18)
     axs[i, j].tick_params(axis="y", labelsize=18)
     
@@ -68,7 +68,8 @@ for dummy in ["tax", "ets", "fit", "rps"]:
 
     k += 1
 
-plt.savefig(path_root+"/manuscript/Tex/figures/description/adoption_scatterII.pdf")
+plt.tight_layout()
+plt.savefig(path_github+"/output/figures/description/adoption_scatter.pdf")
 
 
 #Adoption and survival - time series
