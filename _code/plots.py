@@ -74,10 +74,10 @@ plt.savefig(path_github+"/output/figures/description/adoption_scatter.pdf")
 
 #Adoption and survival - time series
 
-survival = db[["Country", "Year", "tax", "ets", "fit", 
+survival = db[["Country", "year", "tax", "ets", "fit", 
                "rps", "pricing", "techpol"]]
 
-survival = survival.groupby(["Year"]).sum()/len(survival.loc[survival.Year==2016,:])
+survival = survival.groupby(["year"]).sum()/len(survival.Country.unique())
 
 for col in survival.columns:
     survival[col+"_surv"] = 1 - survival[col]
@@ -140,10 +140,10 @@ for dummy in ["tax", "ets", "fit", "rps", "pricing", "techpol"]:
     plt.plot(survival.index, survival[dummy], label=labels[i], color=colors[i], marker=markers[i])
     i += 1
 
-plt.ylabel("% of countries with policy", fontsize=28)
+plt.ylabel("share of countries with policy", fontsize=28)
 plt.tick_params(axis="x", labelsize=24)
 plt.tick_params(axis="y", labelsize=24)
-plt.xlim([1990, 2016])
+plt.xlim([1990, 2017])
 plt.ylim(0, 1.01)
 
 plt.legend(labels=["carbon tax", "emissions trading", "FiT", "RPS", 
@@ -177,14 +177,14 @@ def diffusion_visuals(features, category):
         l = 0
         
         for feature in features:
-            temp = db.loc[:, ["Country", "Year", feature]]
+            temp = db.loc[:, ["Country", "year", feature]]
             
             k = 0
             
             for ctry in countries:
     
                 temp_ctry = temp.loc[temp.Country==ctry, :]
-                axs[i, j].plot(temp_ctry.Year, temp_ctry[feature], color=colors_ctry[m][k], marker=markers_ctry[k], linestyle=lines_ctry[k], label=ctry)
+                axs[i, j].plot(temp_ctry.year, temp_ctry[feature], color=colors_ctry[m][k], marker=markers_ctry[k], linestyle=lines_ctry[k], label=ctry)
             
                 k += 1
                 
@@ -192,7 +192,7 @@ def diffusion_visuals(features, category):
             axs[i, j].set_ylabel(y_labels[category], fontsize=20)
             axs[i, j].tick_params(axis="x", labelsize=18)
             axs[i, j].tick_params(axis="y", labelsize=18)
-            plt.xlim([1990,2016])
+            plt.xlim([1990,2017])
             
             
             if j == 0:
@@ -210,7 +210,7 @@ def diffusion_visuals(features, category):
                fontsize=20,
                )
         
-        plt.savefig(path_root+"/manuscript/Tex_file/figures/"+category+"_"+figname[m]+"II.pdf")
+        plt.savefig(path_onedrive+"/manuscript/TeX/figures/"+category+"_"+figname[m]+"II.pdf")
         m +=1 
 
 #diffusion_visuals(["tax_imp", "ets_imp", "fit_imp", "rps_imp", "pricing_imp", "techpol_imp"], "stringency")
@@ -227,7 +227,7 @@ diffusion_visuals(['tax_leakage_index', 'ets_leakage_index', 'fit_leakage_index'
 
 # Diffusion regressors: technology
 
-titles = ["OECD", "Non-OECD"]          
+titlesOECD = ["OECD", "Non-OECD"]          
 figname = ["oecd", "noecd"]
 
 fig_xlabels = {'patents_ds_imp':'number of patents (x 100)', 'patents_ds_exp':'number of patents (x 100)',
@@ -242,20 +242,20 @@ for feature in ['patents_ds_imp', 'patents_ds_exp', 'capacity_ws_ds_imp', 'capac
 
     for countries in [countries_oecd, countries_noecd]:
         
-        temp = db.loc[:, ["Country", "Year", feature]]
+        temp = db.loc[:, ["Country", "year", feature]]
         
         k = 0
         
         for ctry in countries:
             temp_ctry = temp.loc[temp.Country==ctry, :]
-            axs[i].plot(temp_ctry.Year, temp_ctry[feature], color=colors_ctry[l][k], marker=markers_ctry[k], 
+            axs[i].plot(temp_ctry.year, temp_ctry[feature], color=colors_ctry[l][k], marker=markers_ctry[k], 
                         linestyle=lines_ctry[k], label=ctry)
         
             k += 1
         
         axs[i].set_ylabel(fig_xlabels[feature], fontsize= 27)
         axs[i].set_xticklabels([1990, 1995, 2000, 2005, 2010, 2015], fontsize= 20)
-        axs[i].set_title(titles[l], fontsize=30)
+        axs[i].set_title(titlesOECD[l], fontsize=30)
         axs[i].tick_params(axis="y", labelsize=20)
         axs[i].legend(fontsize=26)
         
@@ -265,9 +265,9 @@ for feature in ['patents_ds_imp', 'patents_ds_exp', 'capacity_ws_ds_imp', 'capac
         l += 1
         
     plt.xticks([1990, 1995, 2000, 2005, 2010, 2015], fontsize=20)
-    plt.xlim([1990,2016])       
+    plt.xlim([1990,2017])       
     plt.tight_layout()
-    plt.savefig(path_root+"/Manuscript/Tex_file/Figures/description/diffusion_tech_"+feature+"II.pdf")
+    plt.savefig(path_onedrive+"/Manuscript/TeX/Figures/description/diffusion_tech_"+feature+"II.pdf")
      
 
 
@@ -284,21 +284,22 @@ for countries in [countries_oecd, countries_noecd]:
     l = 0
 
     for feature in ['tax_impexp', 'ets_impexp', 'fit_impexp', 'rps_impexp']: #, 'pricing_impexp', 'techpol_impexp'
-        temp = db.loc[:, ["Country", "Year", feature]]
+        print(l)
+        temp = db.loc[:, ["Country", "year", feature]]
         
         k = 0
         
         for ctry in countries:
             temp_ctry = temp.loc[temp.Country==ctry, :]
-            axs[i, j].plot(temp_ctry.Year, temp_ctry[feature], color=colors_ctry[m][k], marker=markers_ctry[k], linestyle=lines_ctry[k], label=ctry)
+            axs[i, j].plot(temp_ctry.year, temp_ctry[feature], color=colors_ctry[m][k], marker=markers_ctry[k], linestyle=lines_ctry[k], label=ctry)
         
             k += 1
 
         axs[i, j].set_xticklabels([1990, 1995, 2000, 2005, 2010, 2015], fontsize= 18)
-        axs[i, j].set_ylabel("% of total bilateral trade", fontsize=20)
+        axs[i, j].set_ylabel("share of total bilateral trade", fontsize=20)
         axs[i, j].tick_params(axis="y", labelsize= 18)            
         axs[i, j].set_title(titles[l], fontsize=24)
-        plt.xlim([1990,2016])
+        plt.xlim([1990,2017])
         
         if j == 0:
             j += 1
@@ -314,7 +315,7 @@ for countries in [countries_oecd, countries_noecd]:
                fontsize=20,
                ncol=5)
     
-    plt.savefig(path_root+"/manuscript/Tex_file/figures/description/diffusion_com_"+figname[m]+"_v2.pdf")
+    plt.savefig(path_onedrive+"/manuscript/TeX/figures/description/diffusion_com_"+figname[m]+"_v2.pdf")
     m +=1 
 
 
